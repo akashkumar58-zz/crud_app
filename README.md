@@ -1,5 +1,4 @@
 # crud_app
-As simple RESTful  Django app with CRUD functionality
+A simple RESTful  Django app with CRUD functionality. The application exposes API endpoints to CREATE, READ, UPDATE, DELETE a book from postgresql database. The Django-app is written in python3.
 
-# Refrences
-https://realpython.com/test-driven-development-of-a-django-restful-api/#django-project-setup
+
