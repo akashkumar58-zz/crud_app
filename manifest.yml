@@ -1,0 +1,6 @@
+---
+ applications:
+ - name: mybookapp
+   memory: 1G
+   services:
+   - bookAppService

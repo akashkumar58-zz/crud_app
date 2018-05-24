@@ -1,0 +1,1 @@
+web: python manage.py migrate && gunicorn crud_app.wsgi --log-file -

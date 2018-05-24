@@ -13,5 +13,10 @@ urlpatterns = [
         r'^api/v1/books/$',
         views.get_post_books,
         name='get_post_books'
-    )
+    ),
+	url(
+		r'^api/v1/check/$',
+		views.urlCheck,
+		name='urlCheck'
+	)
 ]

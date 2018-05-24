@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import dj_database_url
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +22,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7-10(5nrfkn+wiiox=v^u9imn0k&!fr!4=j&5=q=&-ulbaw8nd'
+SECRET_KEY = os.environ.get('SECRET_KEY', '7-10(5nrfkn+wiiox=v^u9imn0k&!fr!4=j&5=q=&-ulbaw8nd')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+TEMPLATE_DEBUG = True
+
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,22 +41,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'crud',
-    'rest_framework'
+    'rest_framework',
+	'crud'
 ]
 
-REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions or allow read-only access for unauthenticated users.
-    #'DEFAULT_PERMISSION_CLASSES': [],
-    #'TEST_REQUEST_DEFAULT_FORMAT': 'json'
-}
-
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -81,18 +79,36 @@ WSGI_APPLICATION = 'crud_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'book_store_db',
-        'USER': 'bookuser',
-        'PASSWORD': 'library',
-        'HOST': '127.0.0.1',
-        'PORT': '5432'
+DATABASES = {}
+if 'VCAP_SERVICES' in os.environ:
+    vcap = json.loads(os.environ['VCAP_SERVICES'])
+    db_cred = vcap['DBaaService'][0]['credentials']
+    DATABASES  = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': db_cred['name'],
+            'USER': db_cred['user'],
+            'PASSWORD': db_cred['password'],
+            'HOST': db_cred['host'],
+            'PORT': db_cred['port']
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'book_store_db',
+            'USER': 'bookuser',	
+            'PASSWORD': 'library',
+            'HOST': 'localhost',
+            'PORT': 5432,
+        }
+    }
 
-
+'''
+DATABASES={}
+DATABASES['default'] = dj_database_url.config(default='postgres://82c069256d1e08aa510982820492e511:p%40ssword@10.11.61.93:5432/5f5ccf9a161e25e703783b20d3aa62c0')
+'''
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
@@ -129,4 +145,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
